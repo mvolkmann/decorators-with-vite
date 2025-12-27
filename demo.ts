@@ -9,8 +9,6 @@ import {
   timeMethod,
 } from "./decorators";
 
-//TODO: Show passing arguments to decorators.
-
 @logInstanceCreation
 @logContext
 @countInstances
@@ -22,7 +20,6 @@ export class MyClass {
   #foo = 1;
 
   //@logContext
-  @countInstances
   get foo() {
     return this.#foo;
   }
@@ -37,7 +34,7 @@ export class MyClass {
   // which is at stage 3 as of 12/23/2025.
   // See https://github.com/tc39/proposal-decorators#class-auto-accessors.
   //@logContext
-  //@logAccess
+  @logAccess
   accessor count = 0;
 
   //@logContext
@@ -55,12 +52,11 @@ export class MyClass {
 let mc = new MyClass();
 mc.increment();
 mc.increment();
-//mc.logCount();
+mc.logCount();
 mc = new MyClass();
 mc = new MyClass();
-//console.log("MyClass.instanceCount =", (MyClass as any).instanceCount);
+console.log("MyClass.instanceCount =", (MyClass as any).instanceCount);
 
-//@customElement("my-dog")
 @countInstances
 export class Dog {
   name = "";
@@ -72,8 +68,8 @@ export class Dog {
 }
 const comet = new Dog("Comet");
 const dogs = [new Dog("Ramsay"), new Dog("Oscar"), comet, new Dog("Greta")];
-//console.log("dogs.length =", dogs.length);
-//console.log("Dog.instanceCount =", (Dog as any).instanceCount);
+console.log("dogs.length =", dogs.length);
+console.log("Dog.instanceCount =", (Dog as any).instanceCount);
 comet.age = 5;
 //comet.age = 50;
 

@@ -87,7 +87,7 @@ export function timeMethod(
   }
   const nameString = String(name); // name is a Symbol
 
-  return function (...args: any[]) {
+  return function (this: unknown, ...args: any[]) {
     console.time(nameString);
     const result = originalMethod.call(this, ...args);
     console.timeEnd(nameString);
