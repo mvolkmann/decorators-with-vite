@@ -1,6 +1,5 @@
 {
-  "name": "decorators",
-  "main": "index.js",
+  "name": "decorators-with-vite",
   "scripts": {
     "dev": "vite"
   },
