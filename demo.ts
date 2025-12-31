@@ -96,7 +96,7 @@ export class InfoButton extends HTMLElement {
   }
 
   connectedCallback() {
-    const label = this.getAttribute("label") || "Help";
+    const label = this.getAttribute("label") || "Info";
     const text = this.textContent || "No information was provided.";
     this.innerHTML = `
       <button>${label}</button>
