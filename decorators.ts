@@ -100,19 +100,17 @@ export function logInstanceCreation<T extends new (...args: any[]) => {}>(
 }
 
 export function on(eventName: string) {
-  return function <This extends HTMLElement>(
-    originalMethod: (this: This, event: Event) => void,
-    context: ClassMethodDecoratorContext<
-      This,
-      (this: This, event: Event) => void
-    >
+  return function <Return>(
+    method: (this: HTMLElement, ...args: any[]) => Return,
+    context: ClassMethodDecoratorContext
   ) {
     if (context.kind !== "method") {
       throw new Error("This decorator can only be applied to a method.");
     }
     context.addInitializer(function () {
-      this.addEventListener(eventName, (event: Event) => {
-        originalMethod.call(this, event);
+      const element = this as HTMLElement;
+      element.addEventListener(eventName, (event: Event) => {
+        method.call(element, event);
       });
     });
   };
