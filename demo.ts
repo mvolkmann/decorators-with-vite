@@ -81,22 +81,31 @@ export class HelloWorld extends HTMLElement {
   }
 }
 
-class HelpButton extends HTMLElement {
-  #helpText = "";
-
-  constructor() {
-    super();
-    this.#helpText = this.textContent || "No help available.";
-  }
+class InfoButton extends HTMLElement {
+  #dialog: HTMLDialogElement | undefined;
 
   @on("click")
-  handleClick(_event: MouseEvent) {
-    alert(this.#helpText);
+  handleClick(event: MouseEvent) {
+    const button = event.target as HTMLButtonElement;
+    if (button.id === "close") {
+      this.#dialog?.close();
+    } else {
+      this.#dialog?.showModal();
+    }
   }
 
   connectedCallback() {
-    this.innerHTML = `<button>Help</button>`;
+    const label = this.getAttribute("label") || "Help";
+    const text = this.textContent || "No information was provided.";
+    this.innerHTML = `
+      <button>${label}</button>
+      <dialog>
+        <p>${text}</p>
+        <button id="close">Close</button>
+      </dialog>
+    `;
+    this.#dialog = this.querySelector("dialog") as HTMLDialogElement;
   }
 }
 
-customElements.define("help-button", HelpButton);
+customElements.define("info-button", InfoButton);
