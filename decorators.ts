@@ -117,11 +117,8 @@ export function rangeValidation(min: number, max: number) {
 
 // This is the decorator factory function from Lit.
 export function customElement(name: string) {
-  return (
-    target: CustomElementConstructor,
-    { kind }: ClassDecoratorContext
-  ) => {
-    if (kind !== "class") {
+  return (target: CustomElementConstructor, context: ClassDecoratorContext) => {
+    if (context.kind !== "class") {
       throw new Error("This decorator can only be applied to a class.");
     }
     if (!(target.prototype instanceof HTMLElement)) {
@@ -130,6 +127,11 @@ export function customElement(name: string) {
           "to a class that extends HTMLElement."
       );
     }
-    customElements.define(name, target);
+    context.addInitializer(() => {
+      if (!customElements.get(name)) {
+        customElements.define(name, target);
+        console.log(`registered custom element ${name}`);
+      }
+    });
   };
 }
