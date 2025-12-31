@@ -100,8 +100,8 @@ export function logInstanceCreation<T extends new (...args: any[]) => {}>(
 }
 
 export function on(eventName: string) {
-  return function <Return>(
-    method: (this: HTMLElement, ...args: any[]) => Return,
+  return function (
+    method: (this: HTMLElement, ...args: any[]) => any,
     context: ClassMethodDecoratorContext
   ) {
     if (context.kind !== "method") {
