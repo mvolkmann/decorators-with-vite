@@ -73,10 +73,9 @@ console.log("Dog.instanceCount =", (Dog as any).instanceCount);
 comet.age = 5;
 //comet.age = 50;
 
-@customElement("my-custom-element")
-class MyCustomElement extends HTMLElement {
-  constructor() {
-    super();
-    console.log("MyCustomElement.constructor");
+@customElement("hello-world")
+export class HelloWorld extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = "<p>Hello, World!</p>";
   }
 }

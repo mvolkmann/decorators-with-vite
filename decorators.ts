@@ -117,8 +117,11 @@ export function rangeValidation(min: number, max: number) {
 
 // This is the decorator factory function from Lit.
 export function customElement(name: string) {
-  return (target: any, context: ClassDecoratorContext) => {
-    if (context.kind !== "class") {
+  return (
+    target: CustomElementConstructor,
+    { kind }: ClassDecoratorContext
+  ) => {
+    if (kind !== "class") {
       throw new Error("This decorator can only be applied to a class.");
     }
     if (!(target.prototype instanceof HTMLElement)) {
