@@ -81,7 +81,8 @@ export class HelloWorld extends HTMLElement {
   }
 }
 
-class InfoButton extends HTMLElement {
+@customElement("info-button")
+export class InfoButton extends HTMLElement {
   #dialog: HTMLDialogElement | undefined;
 
   @on("click")
@@ -107,5 +108,3 @@ class InfoButton extends HTMLElement {
     this.#dialog = this.querySelector("dialog") as HTMLDialogElement;
   }
 }
-
-customElements.define("info-button", InfoButton);
