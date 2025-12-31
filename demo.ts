@@ -3,8 +3,9 @@ import {
   customElement,
   logAccess,
   logContext,
-  logInitialFieldValue,
+  //logInitialFieldValue,
   logInstanceCreation,
+  on,
   rangeValidation,
   timeMethod,
 } from "./decorators";
@@ -38,7 +39,7 @@ export class MyClass {
   accessor count = 0;
 
   //@logContext
-  //@timeMethod
+  @timeMethod
   increment() {
     this.count++;
     //console.log("count =", this.count);
@@ -79,3 +80,23 @@ export class HelloWorld extends HTMLElement {
     this.innerHTML = "<p>Hello, World!</p>";
   }
 }
+
+class HelpButton extends HTMLElement {
+  #helpText = "";
+
+  constructor() {
+    super();
+    this.#helpText = this.textContent || "No help available.";
+  }
+
+  @on("click")
+  handleClick(_event: MouseEvent) {
+    alert(this.#helpText);
+  }
+
+  connectedCallback() {
+    this.innerHTML = `<button>Help</button>`;
+  }
+}
+
+customElements.define("help-button", HelpButton);
