@@ -6,8 +6,13 @@ import {
   //logInitialFieldValue,
   logInstanceCreation,
   on,
+  minLength,
+  range,
   rangeValidation,
+  required,
   timeMethod,
+  validate,
+  regex,
 } from "./decorators";
 
 @logInstanceCreation
@@ -20,6 +25,23 @@ export class MyClass {
 
   #foo = 1;
 
+  @required
+  @minLength(3)
+  accessor city = "";
+
+  @regex("^[0-9]{5}$")
+  accessor zip = "";
+
+  // The "accessor" keyword create auto-accessors.
+  // It is defined in the TC39 "Decorators" proposal
+  // which is at stage 3 as of 12/23/2025.
+  // See https://github.com/tc39/proposal-decorators#class-auto-accessors.
+  //@logContext
+  //@logAccess
+  @range(0, 10)
+  count = 0;
+  //accessor count = 0;
+
   //@logContext
   get foo() {
     return this.#foo;
@@ -29,14 +51,6 @@ export class MyClass {
   set foo(value) {
     this.#foo = value;
   }
-
-  // The "accessor" keyword create auto-accessors.
-  // It is defined in the TC39 "Decorators" proposal
-  // which is at stage 3 as of 12/23/2025.
-  // See https://github.com/tc39/proposal-decorators#class-auto-accessors.
-  //@logContext
-  @logAccess
-  accessor count = 0;
 
   //@logContext
   @timeMethod
@@ -51,6 +65,12 @@ export class MyClass {
 }
 
 let mc = new MyClass();
+//mc.city = "St. Charles";
+mc.count = 7;
+mc.zip = "foo";
+const { valid, errors } = validate(mc);
+if (!valid) alert(errors.join("\n"));
+
 mc.increment();
 mc.increment();
 mc.logCount();
@@ -63,6 +83,13 @@ export class Dog {
   name = "";
   @rangeValidation(0, 20)
   accessor age = 0;
+  /*************  ✨ Windsurf Command ⭐  *************/
+  /**
+   * Creates a new Dog instance.
+   *
+   * @param {string} name - The name of the dog.
+   */
+  /*******  7e656dba-9355-4c72-98a4-d8bdfef55ce9  *******/
   constructor(name: string) {
     this.name = name;
   }

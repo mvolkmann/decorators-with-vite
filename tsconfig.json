@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "strict": true
+    "lib": ["ESNext", "DOM"], // ESNext supports modern Symbols.
+    "moduleResolution": "Node",
+    "strict": true,
+    "target": "ES2022"
   }
 }

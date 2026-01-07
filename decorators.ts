@@ -1,3 +1,8 @@
+// Ensure the metadata global Symbol exists before any classes are loaded.
+if (typeof Symbol.metadata === "undefined") {
+  (Symbol as any).metadata = Symbol("Symbol.metadata");
+}
+
 export function countInstances<T extends new (...args: any[]) => {}>(
   target: T,
   { kind }: ClassDecoratorContext<T>
@@ -47,18 +52,18 @@ export function logAccess(
   if (kind !== "accessor") {
     throw new Error(
       "This decorator can only be applied to " +
-        'a property with the "accessor" keyword.'
+        'a field with the "accessor" keyword.'
     );
   }
   const nameString = String(name); // name is a Symbol
   return {
     get() {
       const value = target.get.call(this);
-      console.log(`Getting ${nameString} property value ${value}.`);
+      console.log(`Getting ${nameString} field value ${value}.`);
       return value;
     },
     set(value: unknown) {
-      console.log(`Setting ${nameString} property to ${value}.`);
+      console.log(`Setting ${nameString} field to ${value}.`);
       target.set.call(this, value);
     },
   };
@@ -78,7 +83,7 @@ export function logInitialFieldValue(
     throw new Error("This decorator can only be applied to a class field.");
   }
   const nameString = String(name); // name is a Symbol
-  console.log(`The initial value of the ${nameString} property is "${value}".`);
+  console.log(`The initial value of the ${nameString} field is "${value}".`);
 }
 
 // The generic type T captures the type of the class being decorated.
@@ -150,5 +155,93 @@ export function timeMethod<This, Return>(
     const result = originalMethod.call(this, ...args);
     console.timeEnd(nameString);
     return result;
+  };
+}
+
+type ValidationRule = {
+  validate: (value: any) => boolean;
+  message: string;
+};
+
+function accessorOrField(context: DecoratorContext) {
+  const { kind } = context;
+  if (kind !== "accessor" && kind !== "field") {
+    throw new Error(
+      "This decorator can only be applied to a class accessor or field."
+    );
+  }
+}
+
+function addValidationRule(context: DecoratorContext, rule: ValidationRule) {
+  const { metadata } = context;
+  console.log("decorators.ts addValidationRule: metadata =", metadata);
+  // @ts-ignore
+  let constraints: Record<string, ValidationRule[]> = metadata["constraints"];
+  if (!constraints) {
+    // @ts-ignore
+    constraints = metadata.constraints = {};
+  }
+  const name = String(context.name);
+  constraints[name] ??= [];
+  constraints[name].push(rule);
+}
+
+export function minLength(len: number) {
+  return (_target: unknown, context: DecoratorContext) => {
+    accessorOrField(context);
+    addValidationRule(context, {
+      validate: (v) => typeof v === "string" && v.length >= len,
+      message: `${String(context.name)} must be at least ${len} characters`,
+    });
+  };
+}
+
+export function range(min: number, max: number) {
+  return (target: unknown, context: DecoratorContext) => {
+    accessorOrField(context);
+    const name = String(context.name);
+    addValidationRule(context, {
+      validate: (v) => min <= v && v <= max,
+      message: `${name} must be between ${min} and ${max}`,
+    });
+  };
+}
+
+export function regex(pattern: string) {
+  return (_target: unknown, context: DecoratorContext) => {
+    accessorOrField(context);
+    addValidationRule(context, {
+      validate: (v) => new RegExp(pattern).test(v),
+      message: `${String(context.name)} must match pattern ${pattern}`,
+    });
+  };
+}
+
+export function required(_target: unknown, context: DecoratorContext) {
+  accessorOrField(context);
+  addValidationRule(context, {
+    validate: (v: unknown) => v !== undefined && v !== null && v !== "",
+    message: `${String(context.name)} is required`,
+  });
+}
+
+// Unlike the rangeValidation decorator factory,
+// this approach performs validation on request
+// rather than each time a field is set.
+export function validate(instance: Record<string, any>) {
+  const metadata = instance.constructor[Symbol.metadata] ?? {};
+  const constraints = metadata["constraints"] ?? {};
+  const errors: string[] = [];
+  for (const [prop, rules] of Object.entries(constraints)) {
+    const value = instance[prop];
+    for (const rule of rules) {
+      if (!rule.validate(value)) {
+        errors.push(`${rule.message} (value is ${value})`);
+      }
+    }
+  }
+  return {
+    valid: errors.length === 0,
+    errors,
   };
 }
