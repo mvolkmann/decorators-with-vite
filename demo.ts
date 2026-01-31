@@ -3,7 +3,7 @@ import {
   customElement,
   logAccess,
   logContext,
-  //logInitialFieldValue,
+  logField,
   logInstanceCreation,
   on,
   minLength,
@@ -20,7 +20,7 @@ import {
 @countInstances
 export class MyClass {
   //@logContext
-  //@logInitialFieldValue
+  @logField
   sport = "football";
 
   #foo = 1;
@@ -135,3 +135,11 @@ export class InfoButton extends HTMLElement {
     this.#dialog = this.querySelector("dialog") as HTMLDialogElement;
   }
 }
+
+export class Secret {
+  @logField
+  code = "random";
+}
+
+const secret = new Secret();
+console.log(`Secret code is ${secret.code}.`);

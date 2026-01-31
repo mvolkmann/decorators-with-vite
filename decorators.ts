@@ -5,7 +5,7 @@ if (typeof Symbol.metadata === "undefined") {
 
 export function countInstances<T extends new (...args: any[]) => {}>(
   target: T,
-  { kind }: ClassDecoratorContext<T>
+  { kind }: ClassDecoratorContext<T>,
 ) {
   if (kind !== "class") {
     throw new Error("This decorator can only be applied to a class.");
@@ -33,7 +33,7 @@ export function customElement(name: string) {
     if (!(target.prototype instanceof HTMLElement)) {
       throw new Error(
         "This decorator can only be applied " +
-          "to a class that extends HTMLElement."
+          "to a class that extends HTMLElement.",
       );
     }
     context.addInitializer(() => {
@@ -47,12 +47,12 @@ export function customElement(name: string) {
 
 export function logAccess(
   target: any,
-  { kind, name }: ClassAccessorDecoratorContext
+  { kind, name }: ClassAccessorDecoratorContext,
 ) {
   if (kind !== "accessor") {
     throw new Error(
       "This decorator can only be applied to " +
-        'a field with the "accessor" keyword.'
+        'a field with the "accessor" keyword.',
     );
   }
   const nameString = String(name); // name is a Symbol
@@ -75,21 +75,25 @@ export function logContext(target: any, context: any) {
   console.log("context =", context);
 }
 
-export function logInitialFieldValue(
-  value: any,
-  { kind, name }: ClassFieldDecoratorContext
+export function logField<This, Value>(
+  target: undefined, // always undefined in field decorators
+  context: ClassFieldDecoratorContext<This, Value>,
 ) {
-  if (kind !== "field") {
-    throw new Error("This decorator can only be applied to a class field.");
+  if (context.kind !== "field") {
+    throw new Error("This decorator can only be applied to a field.");
   }
-  const nameString = String(name); // name is a Symbol
-  console.log(`The initial value of the ${nameString} field is "${value}".`);
+  const name = String(context.name);
+  return (initialValue: Value) => {
+    console.log(`The initial value of the {name} field is ${initialValue}.`);
+    if (initialValue === "random") return String(Math.random()) as Value;
+    return initialValue;
+  };
 }
 
 // The generic type T captures the type of the class being decorated.
 export function logInstanceCreation<T extends new (...args: any[]) => {}>(
   target: T,
-  { kind, name }: ClassDecoratorContext<T>
+  { kind, name }: ClassDecoratorContext<T>,
 ) {
   if (kind !== "class") {
     throw new Error("This decorator can only be applied to a class.");
@@ -107,7 +111,7 @@ export function logInstanceCreation<T extends new (...args: any[]) => {}>(
 export function on(eventName: string) {
   return function (
     method: (this: HTMLElement, ...args: any[]) => any,
-    context: ClassMethodDecoratorContext
+    context: ClassMethodDecoratorContext,
   ) {
     if (context.kind !== "method") {
       throw new Error("This decorator can only be applied to a method.");
@@ -132,7 +136,7 @@ export function rangeValidation(min: number, max: number) {
         if (newValue < min || newValue > max) {
           const name = String(context.name);
           throw new Error(
-            `${name} ${newValue} is outside range ${min} to ${max}`
+            `${name} ${newValue} is outside range ${min} to ${max}`,
           );
         }
         value = newValue;
@@ -143,7 +147,7 @@ export function rangeValidation(min: number, max: number) {
 
 export function timeMethod<This, Return>(
   originalMethod: (this: This, ...args: any[]) => Return,
-  { kind, name }: ClassMethodDecoratorContext
+  { kind, name }: ClassMethodDecoratorContext,
 ) {
   if (kind !== "method") {
     throw new Error("This decorator can only be applied to a method.");
@@ -167,7 +171,7 @@ function accessorOrField(context: DecoratorContext) {
   const { kind } = context;
   if (kind !== "accessor" && kind !== "field") {
     throw new Error(
-      "This decorator can only be applied to a class accessor or field."
+      "This decorator can only be applied to a class accessor or field.",
     );
   }
 }
