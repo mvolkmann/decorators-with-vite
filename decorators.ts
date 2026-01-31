@@ -84,7 +84,7 @@ export function logField<This, Value>(
   }
   const name = String(context.name);
   return (initialValue: Value) => {
-    console.log(`The initial value of the {name} field is ${initialValue}.`);
+    console.log(`The initial value of the ${name} field is ${initialValue}.`);
     if (initialValue === "random") return String(Math.random()) as Value;
     return initialValue;
   };
