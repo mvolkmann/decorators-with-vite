@@ -98,7 +98,7 @@ export function logInstanceCreation<T extends new (...args: any[]) => {}>(
   if (kind !== "class") {
     throw new Error("This decorator can only be applied to a class.");
   }
-  const nameString = String(name); // name is a Symbol
+  const nameString = name ?? "anonymous class";
   return class extends target {
     constructor(...args: any[]) {
       super(...args);
@@ -171,7 +171,7 @@ function accessorOrField(context: DecoratorContext) {
   const { kind } = context;
   if (kind !== "accessor" && kind !== "field") {
     throw new Error(
-      "This decorator can only be applied to a class accessor or field.",
+      "This decorator can only be applied to an accessor or field.",
     );
   }
 }
